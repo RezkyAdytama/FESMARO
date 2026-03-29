@@ -68,6 +68,8 @@ Analisis visual dilakukan untuk memahami pola distribusi pasar dan tren penjuala
 <br>
 <img src="./img/GrafikTren.png" alt="Tren" width="100%">
 
+<img src="./img/line.png" alt="Line" width="100%">
+
 ### Models
 Proyek ini membandingkan beberapa algoritma regresi untuk mendapatkan akurasi prediksi terbaik terhadap nilai keuntungan (profit) dan penjualan:
 * Linear Regression & Ridge: Sebagai model dasar (baseline) untuk melihat hubungan linear antar variabel.
