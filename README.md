@@ -53,29 +53,112 @@ Sebelum masuk ke tahap pemodelan, data melalui proses cleaning yang ketat:
 * Outlier Handling: Menggunakan metode Interquartile Range (IQR) untuk mendeteksi anomali. Sebanyak 124 titik data ekstrem pada kolom permintaan dihapus untuk menjaga stabilitas model.
 * Feature Engineering: Transformasi data waktu (order date) ke format datetime dan standarisasi fitur menggunakan StandardScaler.
 
-<img src="./img/line.png" alt="Sales Trend" width="100%">
+### Exploratory Data Analysis
+Analisis visual dilakukan untuk memahami pola distribusi pasar dan tren penjualan.
+* Geospatial Analysis: Identifikasi 10 negara dengan volume penjualan tertinggi untuk menentukan fokus pasar.
 
 <br>
-*The following figure shows the sales trend in the dataset over time for each car brand, providing an overview of overall patterns and fluctuations.*
-<img src="./img/trend.png" alt="Sales Trend" width="100%">
+<img src="./img/GrafikNegara.png" alt="Country" width="100%">
+
+* Demand Trend: Analisis fluktuasi permintaan bulanan untuk melihat pola musiman dalam rantai pasok.
+
+<br>
+<img src="./img/GrafikTren.png" alt="Tren" width="100%">
 
 ### Models
-This project applies an ensemble learning approach with bias correction to improve sales forecasting performance, focusing on the TOYOTA sales column. Instead of relying on a single model, multiple forecasting models are combined to capture different patterns in the data and reduce prediction bias.
-
-The ensemble consists of three models:
-* ARIMA, which captures linear patterns and temporal dependencies in time series data
-* Prophet, which models trend and seasonality effectively
-* LightGBM, which learns complex and non-linear relationships from the data
+Proyek ini membandingkan beberapa algoritma regresi untuk mendapatkan akurasi prediksi terbaik terhadap nilai keuntungan (profit) dan penjualan:
+* Linear Regression & Ridge: Sebagai model dasar (baseline) untuk melihat hubungan linear antar variabel.
+* Random Forest Regressor: Algoritma ensemble berbasis tree untuk menangani kompleksitas data.
+* XGBoost Regressor: Algoritma Gradient Boosting tingkat lanjut yang dioptimalkan untuk performa tinggi dan akurasi yang lebih presisi pada dataset besar.
 
 ### Results
-The table below presents the final sales prediction results for each automotive brand based on the ensemble learning model:
 
-| Brand | Final Prediction |
+Evaluasi model dilakukan melalui tiga tahapan pengujian yang ketat untuk memastikan stabilitas dan akurasi prediksi sebelum diimplementasikan pada data riil.
+
+#### 1. Backtesting Model (-1 Bulan Data)
+Pada tahap ini, model diuji dengan menyisihkan satu bulan terakhir dari dataset sebagai data uji (unseen data). Hal ini bertujuan untuk melihat sejauh mana kemampuan model dalam memprediksi pola yang belum pernah dipelajari sebelumnya.
+
+**Metrik Evaluasi:**
+* **RMSE:** 6.7078
+* **MAE:** 5.1569
+* **MAPE:** 1.51%
+
+**Tabel Hasil Uji (Sampel 15 Hari):**
+
+| Tanggal | Aktual | Prediksi | Error |
+| :--- | :---: | :---: | :---: |
+| 2017-09-01 | 408 | 400.92 | 7.08 |
+| 2017-09-02 | 375 | 376.28 | -1.28 |
+| 2017-09-03 | 391 | 393.78 | -2.78 |
+| 2017-09-04 | 336 | 330.17 | 5.83 |
+| 2017-09-05 | 372 | 366.86 | 5.14 |
+| 2017-09-06 | 345 | 340.97 | 4.03 |
+| 2017-09-07 | 301 | 300.88 | 0.12 |
+| 2017-09-08 | 364 | 375.15 | -11.15 |
+| 2017-09-09 | 365 | 364.49 | 0.51 |
+| 2017-09-10 | 386 | 379.18 | 6.82 |
+| 2017-09-11 | 387 | 382.95 | 4.05 |
+| 2017-09-12 | 358 | 360.30 | -2.30 |
+| 2017-09-13 | 336 | 342.38 | -6.38 |
+| 2017-09-14 | 327 | 344.04 | -17.04 |
+| 2017-09-15 | 322 | 326.16 | -4.16 |
+
+<br>
+<img src="./img/1bulan.png" alt="bulan" width="100%">
+
+#### 2. Walk-Forward Validation
+Untuk memastikan model tidak mengalami *overfitting* dan tetap konsisten pada periode waktu yang berbeda, dilakukan validasi Walk-Forward. Metode ini membagi data ke dalam beberapa jendela waktu (*sliding window*) untuk menguji ketahanan model secara dinamis.
+
+| Window Index | RMSE | MAE | MAPE |
+| :--- | :---: | :---: | :---: |
+| Start Index 681 | 5.521 | 3.932 | 1.05% |
+| Start Index 711 | 7.110 | 4.710 | 1.19% |
+| Start Index 741 | 8.239 | 5.505 | 1.48% |
+| Start Index 771 | 7.056 | 5.723 | 1.56% |
+| Start Index 801 | 7.306 | 5.558 | 1.57% |
+| Start Index 831 | 15.160 | 10.295 | 3.19% |
+| Start Index 861 | 13.226 | 10.334 | 3.11% |
+| Start Index 891 | 6.729 | 5.604 | 1.60% |
+| Start Index 921 | 5.816 | 4.516 | 1.25% |
+| **Rata-Rata (Mean)** | **8.463** | **6.242** | **1.78%** |
+
+#### 3. Real-World Prediction (Implementation)
+Setelah melalui proses validasi dan dipastikan memiliki tingkat *error* yang rendah (Mean MAPE < 2%), model diimplementasikan untuk memprediksi nilai riil pada periode mendatang (Oktober 2017).
+
+**Hasil Prediksi Riil:**
+
+| Tanggal | Forecast Value |
 | :--- | :---: |
-| DAIHATSU | 7,412 |
-| HONDA | 4,429 |
-| MITSUBISHI | 6,739 |
-| SUZUKI | 3,492 |
-| TOYOTA | 13,313 |
+| 2017-10-02 | 343.45 |
+| 2017-10-03 | 323.23 |
+| 2017-10-04 | 359.07 |
+| 2017-10-05 | 362.97 |
+| 2017-10-06 | 353.95 |
+| 2017-10-07 | 364.47 |
+| 2017-10-08 | 366.54 |
+| 2017-10-09 | 364.81 |
+| 2017-10-10 | 336.50 |
+| 2017-10-11 | 323.83 |
+| 2017-10-12 | 337.60 |
+| 2017-10-13 | 341.84 |
+| 2017-10-14 | 350.32 |
+| 2017-10-15 | 363.85 |
+| 2017-10-16 | 337.94 |
+| 2017-10-17 | 339.83 |
+| 2017-10-18 | 335.74 |
+| 2017-10-19 | 339.63 |
+| 2017-10-20 | 341.17 |
+| 2017-10-21 | 348.04 |
+| 2017-10-22 | 346.53 |
+| 2017-10-23 | 333.95 |
+| 2017-10-24 | 329.41 |
+| 2017-10-25 | 338.68 |
+| 2017-10-26 | 350.39 |
+| 2017-10-27 | 366.16 |
+| 2017-10-28 | 367.81 |
+| 2017-10-29 | 366.96 |
+| 2017-10-30 | 375.43 |
+| 2017-10-31 | 368.37 |
 
-The forecasting performance was evaluated using Symmetric Mean Absolute Percentage Error (SMAPE), resulting in a value of 28.22%.
+<br>
+<img src="./img/real.png" alt="Real" width="100%">
