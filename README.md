@@ -14,11 +14,14 @@ Di era Industri 4.0, efisiensi rantai pasok (supply chain) sangat bergantung pad
 
 - [Dataset](#dataset)
 - [Libraries](#libraries)
-- [Moving Average](#moving-average)
-- [Sales Trend Analysis](#sales-trend-analysis)
+- [Data Cleaning & Preprocessing](#data-cleaning--preprocessing)
+- [Exploratory Data Analysis](#exploratory-data-analysis)
 - [Models](#models)
 - [Results](#results)
-
+  - [1. Backtesting (-1 Bulan Data)](#1-backtesting--1-bulan-data)
+  - [2. Walk-Forward Validation](#2-walk-forward-validation)
+  - [3. Real-World Prediction (Implementation)](#3-real-world-prediction-implementation)
+- [Conclusions & Recommendations](#conclusions--recommendations)
 
 ### Dataset
 Dataset yang digunakan dalam proyek ini adalah DataCo Smart Supply Chain, yang dapat diakses melalui [Kaggle](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis). .
